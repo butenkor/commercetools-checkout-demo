@@ -1,0 +1,19 @@
+{
+  "name": "commercetools-checkout-example",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Simple Node.js + frontend setup for commercetools Checkout",
+  "main": "server.js",
+  "engines": {
+    "node": ">=23.7.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@commercetools/platform-sdk": "^8.2.0",
+    "@commercetools/ts-client": "^3.0.4",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

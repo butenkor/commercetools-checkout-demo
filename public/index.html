@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercetools Checkout</title>
+    
+    <!-- Load the Checkout SDK -->
+    <script>
+        (function (w, d, s) {
+            if (w.ctc) {
+                return;
+            }
+            var js, fjs = d.getElementsByTagName(s)[0];
+            var q = [];
+            w.ctc = w.ctc || function () { q.push(arguments); };
+            w.ctc.q = q;
+            js = d.createElement(s);
+            js.type = 'text/javascript';
+            js.async = true;
+            js.src = 'https://unpkg.com/@commercetools/checkout-browser-sdk@latest/browser/sdk.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        })(window, document, 'script');
+    </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        #checkout-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Commercetools Checkout</h2>
+    <button id="loadCheckout">Start Checkout</button>
+    <div id="checkout-container"></div>
+    
+    <script>
+        document.getElementById("loadCheckout").addEventListener("click", async () => {
+            try {
+                // Call the server to create a cart and the checkout session
+                const response = await fetch("http://localhost:3555/create-session", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                
+                if (!response.ok) {
+                    const errorDetails = await response.json();
+                    console.error("Server error:", errorDetails);
+                    throw new Error(`Server error: ${errorDetails.message || response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log("Checkout session response:", data);
+                
+                if (!data.sessionId || !data.projectKey || !data.region) {
+                    throw new Error("No sessionId, projectKey or region received.");
+                }
+                
+                // Initialize the Commercetools Checkout SDK (use: checkoutFlow OR paymentFlow)
+                ctc('checkoutFlow', {
+                    projectKey: data.projectKey, 
+                    region: data.region,
+                    sessionId: data.sessionId,
+                    locale: 'en',
+                    logInfo: true, 
+                    logWarn: true, 
+                    logError: true,
+                    showTaxes: true,
+                    onInfo: (message) => {
+                        switch (message.code) {
+                            case 'checkout_completed':
+                            const orderId = message.payload.order.id;
+                            alert(`Order ID: ${orderId}. Redirecting to confirmation page...`);
+                            // window.location.href = '/thank-you?orderId=' + id;
+                            // Redirect to confirmation page with Order ID.
+                            break;
+                            case 'payment_method_selection_confirmation_failed':
+                            // Show message to customer and allow user to try again.
+                            break;
+                        }
+                    },
+                });
+                
+            } catch (error) {
+                console.error("Error loading checkout:", error);
+                alert("Failed to load checkout. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>
