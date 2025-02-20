@@ -1,6 +1,6 @@
 # Project description
 
-A simple Node.js, Express, JS/HTML based checkout demo.
+A simple Node.js, Express, JS/HTML based checkout (https://docs.commercetools.com/checkout/overview) demo.
 
 # Installation Guide
 
